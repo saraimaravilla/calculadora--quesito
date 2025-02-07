@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Salarios</title>
+</head>
+<body>
+<div class="contenedor">
+<!-- Sección del formulario -->
+<div class="seccion-formulario">
+<h1>Calculadora de Salarios</h1>
+<form id="formularioSalario">
+<div class="grupo-formulario">
+<label for="nombre">Nombre:</label>
+<input type="text" id="nombre" required autocomplete="off">
+</div>
+<div class="grupo-formulario">
+<label for="apellido">Apellido:</label>
+<input type="text" id="apellido" required autocomplete="off">
+</div>
+<div class="grupo-formulario">
+<label for="cargo">Cargo:</label>
+<input type="text" id="cargo" required autocomplete="off">
+</div>
+<div class="grupo-formulario">
+<label for="salarioBase">Salario Base:</label>
+<input type="text" id="salarioBase" required min="365" step="0.01" placeholder="Ingresa un salario mayor a $365" autocomplete="off">
+</div>
+<button type="submit">Calcular</button>
+</form>
+</div>
+ 
+        <!-- Sección de resultados -->
+<div class="seccion-resultados">
+<div class="resultados" id="resultadosCalculo">
+<!-- Los resultados aparecerán aquí -->
+</div>
+</div>
+</div>
+ 
+    <script>
+        document.getElementById('formularioSalario').addEventListener('submit', function(event) {
+            event.preventDefault(); // Evita que el formulario se envíe
+            calcularSalario();
+        });
+        function calcularSalario() {
+            const salarioBase = parseFloat(document.getElementById('salarioBase').value);
+            const nombre = document.getElementById('nombre').value;
+            const apellido = document.getElementById('apellido').value;
+            const cargo = document.getElementById('cargo').value;
+            // Calcular ISSS
+            const isssCalculado = salarioBase > 1062.50 ? 30 : salarioBase * 0.03;
+            // Calcular AFP
+            const afpCalculado = salarioBase > 6285.71 ? 72.5 : salarioBase * 0.0725;
+            // Calcular renta imponible
+            const rentaImponibleCalculada = salarioBase - isssCalculado - afpCalculado;
+            // Calcular ISR
+            let isrCalculado = 0;
+            if (rentaImponibleCalculada > 2038.10) {
+                isrCalculado = (rentaImponibleCalculada - 2038.10) * 0.30 + 288.57;
+            } else if (rentaImponibleCalculada > 895.24) {
+                isrCalculado = (rentaImponibleCalculada - 895.24) * 0.20 + 60.00;
+            } else if (rentaImponibleCalculada > 472.00) {
+                isrCalculado = (rentaImponibleCalculada - 472.00) * 0.10 + 17.67;
+            }
+            // Calcular ISSS Patrono
+            const isssPatrono = salarioBase > 1062.50 ? 75 : salarioBase * 0.075;
+            // Calcular AFP Patrono
+            const afpPatrono = salarioBase > 6285.71 ? 77.5 : salarioBase * 0.0775;
+            // Calcular totales
+            const totalISSS = isssCalculado + isssPatrono;
+            const totalAFP = afpCalculado + afpPatrono;
+            // Calcular salario líquido
+            const salarioLiquidoCalculado = rentaImponibleCalculada - isrCalculado;
+            // Mostrar resultados
+            const resultadosDiv = document.getElementById('resultadosCalculo');
+            resultadosDiv.innerHTML = `
+<p><strong>Nombre Completo:</strong> ${nombre} ${apellido}</p>
+<p><strong>Cargo:</strong> ${cargo}</p>
+<p><strong>Salario Bruto:</strong> $${salarioBase.toFixed(2)}</p>
+<p><strong>ISSS (3%):</strong> $${isssCalculado.toFixed(2)}</p>
+<p><strong>AFP (7.25%):</strong> $${afpCalculado.toFixed(2)}</p>
+<p><strong>Renta Imponible:</strong> $${rentaImponibleCalculada.toFixed(2)}</p>
+<p><strong>ISR:</strong> $${isrCalculado.toFixed(2)}</p>
+<p><strong>Salario Líquido:</strong> $${salarioLiquidoCalculado.toFixed(2)}</p>
+<hr>
+<p><strong>ISSS Patrono (7.5%):</strong> $${isssPatrono.toFixed(2)}</p>
+<p><strong>AFP Patrono (8.75%):</strong> $${afpPatrono.toFixed(2)}</p>
+<p><strong>Total ISSS:</strong> $${totalISSS.toFixed(2)}</p>
+<p><strong>Total AFP:</strong> $${totalAFP.toFixed(2)}</p>
+            `;
+        }
+</script>
+</body>
+</html>
